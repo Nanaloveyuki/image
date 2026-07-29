@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/image"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode_png(Bytes, limits? : DecodeLimits) -> Image raise ImageError
+
+pub fn default_decode_limits() -> DecodeLimits
+
+pub fn default_icns_sizes() -> Array[Int]
+
+pub fn default_ico_sizes() -> Array[Int]
+
+pub fn encode_icns(Image, sizes? : Array[Int], compression_level? : Int) -> Bytes raise ImageError
+
+pub fn encode_ico(Image, sizes? : Array[Int], compression_level? : Int) -> Bytes raise ImageError
+
+pub fn encode_png(Image, compression_level? : Int) -> Bytes raise ImageError
+
+pub fn encode_png_sizes(Image, Array[Int], compression_level? : Int) -> Array[PngVariant] raise ImageError
+
+pub fn png_data_uri_svg(Bytes, Int, Int) -> String raise ImageError
+
+pub fn resize_lanczos3(Image, Int, Int) -> Image raise ImageError
+
+pub fn square_image(Image, policy? : SquarePolicy) -> Image raise ImageError
+
+// Errors
+pub suberror ImageError {
+  ImageError(ImageErrorKind, String)
+}
+
+// Types and methods
+pub(all) struct DecodeLimits {
+  max_input_bytes : Int
+  max_dimension : Int
+  max_pixels : Int
+}
+
+pub(all) struct Image {
+  width : Int
+  height : Int
+  pixels : Bytes
+} derive(Eq)
+pub fn Image::is_square(Self) -> Bool
+pub fn Image::new(Int, Int, Bytes) -> Self raise ImageError
+
+pub(all) enum ImageErrorKind {
+  InvalidInput
+  ResourceLimit
+  UnsupportedFormat
+  InvalidDimensions
+  NotSquare
+} derive(Eq, @debug.Debug)
+
+pub(all) struct PngVariant {
+  size : Int
+  png : Bytes
+}
+
+pub(all) enum SquarePolicy {
+  Strict
+  CenterCrop
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+
