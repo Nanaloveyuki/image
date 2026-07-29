@@ -30,7 +30,12 @@ jobs:
           set -euo pipefail
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.moon/bin:$PATH"
           moon version --all
+
+      - name: Update MoonCake registry
+        shell: bash
+        run: moon update
 
       - name: Verify formatting and exported interface
         shell: bash
@@ -76,6 +81,10 @@ jobs:
           irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "$HOME/.moon/bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
+      - name: Update MoonCake registry
+        shell: bash
+        run: moon update
+
       - name: Check and test native debug and release profiles
         shell: bash
         run: |
@@ -105,7 +114,12 @@ jobs:
           set -euo pipefail
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.moon/bin:$PATH"
           moon version --all
+
+      - name: Update MoonCake registry
+        shell: bash
+        run: moon update
 
       - name: Check and test target
         shell: bash
@@ -129,6 +143,10 @@ jobs:
           set -euo pipefail
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Update MoonCake registry
+        shell: bash
+        run: moon update
 
       - name: Validate package contents
         shell: bash
