@@ -24,6 +24,23 @@ moon info
 `moon info` regenerates `pkg.generated.mbti`. Review that file whenever a public
 type or function changes; it is the package's checked public surface.
 
+## Continuous Integration
+
+GitHub Actions runs on pushes to `main`, pull requests targeting `main`, and
+manual dispatches. The workflow checks formatting and generated public APIs,
+tests native debug and release builds on Linux, macOS, and Windows, and tests
+the JS, wasm, and wasm-gc targets on Ubuntu. A separate package job validates
+the distributable archive.
+
+Reproduce the target matrix locally with:
+
+```powershell
+moon test --target native --deny-warn
+moon test --target js --deny-warn
+moon test --target wasm --deny-warn
+moon test --target wasm-gc --deny-warn
+```
+
 Run `moon test` after codec, scaling, or container changes. Tests should cover
 both output bytes and rejected malformed input where applicable. Do not update
 snapshots merely to accept an unexpected encoding or decoding change.
