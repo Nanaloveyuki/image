@@ -46,6 +46,34 @@ fn inflate_png_idat(input : Bytes, limit : Int) -> Bytes raise ImageError {
 }
 
 ///|
+fn transparent_gray(sample : Byte, transparency : Bytes?) -> Bool {
+  match transparency {
+    Some(key) => key.length() == 2 && key[0] == b'\x00' && key[1] == sample
+    None => false
+  }
+}
+
+///|
+fn transparent_rgb(
+  red : Byte,
+  green : Byte,
+  blue : Byte,
+  transparency : Bytes?,
+) -> Bool {
+  match transparency {
+    Some(key) =>
+      key.length() == 6 &&
+      key[0] == b'\x00' &&
+      key[1] == red &&
+      key[2] == b'\x00' &&
+      key[3] == green &&
+      key[4] == b'\x00' &&
+      key[5] == blue
+    None => false
+  }
+}
+
+///|
 /// Decode a non-interlaced, 8-bit PNG into RGBA8. Every chunk checksum and the
 /// zlib Adler-32 checksum are verified before returning pixels.
 pub fn decode_png(
@@ -65,6 +93,8 @@ pub fn decode_png(
   let mut channels = 0
   let mut got_ihdr = false
   let mut got_iend = false
+  let mut got_idat = false
+  let mut got_palette = false
   let mut palette : Bytes? = None
   let mut transparency : Bytes? = None
   let idat = Buffer()
@@ -116,16 +146,40 @@ pub fn decode_png(
       }
       got_ihdr = true
     } else if kind == b"PLTE"[:] {
-      if !got_ihdr || length == 0 || length % 3 != 0 || length > 768 {
+      if !got_ihdr ||
+        got_idat ||
+        got_palette ||
+        (color_type != 2 && color_type != 3 && color_type != 6) ||
+        length == 0 ||
+        length % 3 != 0 ||
+        length > 768 {
         raise ImageError(InvalidInput, "invalid PNG palette")
       }
       palette = Some(Bytes::from_array(payload.to_array()))
+      got_palette = true
     } else if kind == b"tRNS"[:] {
+      if !got_ihdr ||
+        got_idat ||
+        transparency is Some(_) ||
+        (color_type == 3 && !got_palette) {
+        raise ImageError(InvalidInput, "PNG tRNS is out of order or duplicated")
+      }
+      let valid_length = match color_type {
+        0 => length == 2
+        2 => length == 6
+        3 => length > 0 && length <= 256
+        4 | 6 => false
+        _ => false
+      }
+      if !valid_length {
+        raise ImageError(InvalidInput, "invalid PNG tRNS chunk")
+      }
       transparency = Some(Bytes::from_array(payload.to_array()))
     } else if kind == b"IDAT"[:] {
       if !got_ihdr || got_iend {
         raise ImageError(InvalidInput, "PNG IDAT is out of order")
       }
+      got_idat = true
       idat.write_bytes(payload)
     } else if kind == b"IEND"[:] {
       if length != 0 || !got_ihdr {
@@ -135,6 +189,8 @@ pub fn decode_png(
       if offset != input.length() {
         raise ImageError(InvalidInput, "trailing data after PNG IEND")
       }
+    } else if (kind[0].to_int() & 0x20) == 0 {
+      raise ImageError(UnsupportedFormat, "unsupported PNG critical chunk")
     }
   }
   if !got_ihdr || !got_iend || idat.length() == 0 {
@@ -142,6 +198,12 @@ pub fn decode_png(
   }
   if color_type == 3 && palette is None {
     raise ImageError(InvalidInput, "indexed PNG is missing PLTE")
+  }
+  match (palette, transparency) {
+    (Some(colors), Some(alpha)) if color_type == 3 &&
+      alpha.length() > colors.length() / 3 =>
+      raise ImageError(InvalidInput, "PNG tRNS exceeds PLTE entries")
+    _ => ()
   }
   let row_bytes = width * channels
   let expected = height * (row_bytes + 1)
@@ -192,13 +254,24 @@ pub fn decode_png(
           rgba[dst] = g
           rgba[dst + 1] = g
           rgba[dst + 2] = g
-          rgba[dst + 3] = b'\xff'
+          rgba[dst + 3] = if transparent_gray(g, transparency) {
+            b'\x00'
+          } else {
+            b'\xff'
+          }
         }
         2 => {
-          rgba[dst] = scanlines[src]
-          rgba[dst + 1] = scanlines[src + 1]
-          rgba[dst + 2] = scanlines[src + 2]
-          rgba[dst + 3] = b'\xff'
+          let red = scanlines[src]
+          let green = scanlines[src + 1]
+          let blue = scanlines[src + 2]
+          rgba[dst] = red
+          rgba[dst + 1] = green
+          rgba[dst + 2] = blue
+          rgba[dst + 3] = if transparent_rgb(red, green, blue, transparency) {
+            b'\x00'
+          } else {
+            b'\xff'
+          }
         }
         3 => {
           let index = scanlines[src].to_int()

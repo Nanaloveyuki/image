@@ -9,6 +9,19 @@ The library is intentionally a single pure MoonBit package. Do not add a CLI,
 filesystem operations, or native image library bindings. Callers own path layout
 and file I/O.
 
+## Scope
+
+This is Orbit's image companion, not a general image-processing framework. Add a
+codec or transform only when Orbit needs it. Prefer a small local implementation
+when it preserves the existing bounded in-memory contract. When a required
+capability would materially increase the library's complexity, evaluate a pure
+MoonBit dependency behind this package's API rather than leaking that dependency
+into Orbit.
+
+The local `ref/` directory is ignored by Git and may contain unpacked MoonCake
+libraries for implementation comparison. It is reference material only and must
+not become a build input or a published dependency.
+
 ## Local Workflow
 
 Install dependencies and run the normal verification loop from the repository
