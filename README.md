@@ -1,10 +1,10 @@
 # image
 
-`Nanaloveyuki/image` is a pure MoonBit image library for native targets. It
+`Nanaloveyuki/image` is Orbit's lightweight pure MoonBit image companion. It
 decodes PNG into RGBA8, resizes in premultiplied-alpha space, deterministically
 encodes PNG, and assembles ICO and ICNS containers. All APIs accept and return
 `Bytes`; the library has no filesystem or CLI surface and links no native image
-library.
+library. New capabilities are added only for a concrete Orbit requirement.
 
 ## Install
 
