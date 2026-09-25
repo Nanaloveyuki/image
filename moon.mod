@@ -1,6 +1,6 @@
 name = "Nanaloveyuki/image"
 
-version = "0.1.1"
+version = "0.1.2"
 
 description = "Pure MoonBit image codecs and icon container encoders."
 
@@ -15,5 +15,5 @@ keywords = [ "image", "png", "icon", "ico", "icns" ]
 preferred_target = "native"
 
 import {
-  "moonbit-community/flate@0.4.0",
+  "moonbit-community/flate@0.8.4",
 }

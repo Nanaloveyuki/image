@@ -7,7 +7,7 @@ fn validate_chunk_crc(
   payload : BytesView,
   expected : Int,
 ) -> Bool {
-  let crc = @checksum.Crc32::new()
+  let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
   crc.update(payload[:])
   crc.finish().reinterpret_as_int() == expected
@@ -15,12 +15,12 @@ fn validate_chunk_crc(
 
 ///|
 fn inflate_png_idat(input : Bytes, limit : Int) -> Bytes raise ImageError {
-  let decoder = @zlib.Decoder::new()
+  let decoder = @zlib.Decoder::Decoder()
   let output = Buffer()
   let scratch = FixedArray::make(32768, b'\x00')
   let mut position = 0
   while !decoder.is_finished() {
-    let _ = decoder.step(input[position:], scratch.mut_view(), end=true) catch {
+    let status = decoder.step(input[position:], scratch.mut_view(), end=true) catch {
       _ => raise ImageError(InvalidInput, "PNG IDAT zlib stream is invalid")
     }
     let consumed = decoder.last_consumed()
@@ -37,6 +37,9 @@ fn inflate_png_idat(input : Bytes, limit : Int) -> Bytes raise ImageError {
     position = position + consumed
     if consumed == 0 && produced == 0 && !decoder.is_finished() {
       raise ImageError(InvalidInput, "PNG IDAT zlib stream made no progress")
+    }
+    if status is Done && !decoder.is_finished() {
+      raise ImageError(InvalidInput, "PNG IDAT zlib stream is invalid")
     }
   }
   if !decoder.unused_input().is_empty() {
@@ -319,7 +322,7 @@ fn write_png_chunk(out : Buffer, kind : Bytes, payload : Bytes) -> Unit {
   write_u32_be(out, payload.length())
   out.write_bytes(kind[:])
   out.write_bytes(payload[:])
-  let crc = @checksum.Crc32::new()
+  let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
   crc.update(payload[:])
   write_u32_be(out, crc.finish().reinterpret_as_int())

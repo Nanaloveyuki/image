@@ -1,16 +1,13 @@
 ///|
-fn sample_image() -> Image {
-  try! Image::new(
+fn sample_image() -> @image.Image {
+  try! @image.Image::new(
     2, 2, b"\xff\x00\x00\xff\x00\xff\x00\x80\x00\x00\xff\x40\xff\xff\xff\x00",
   )
 }
 
 ///|
 fn test_write_u32_be(output : Buffer, value : Int) -> Unit {
-  output.write_byte(((value >> 24) & 0xff).to_byte())
-  output.write_byte(((value >> 16) & 0xff).to_byte())
-  output.write_byte(((value >> 8) & 0xff).to_byte())
-  output.write_byte((value & 0xff).to_byte())
+  output.write_uint_be(value.reinterpret_as_uint())
 }
 
 ///|
@@ -18,7 +15,7 @@ fn test_write_png_chunk(output : Buffer, kind : Bytes, payload : Bytes) -> Unit 
   test_write_u32_be(output, payload.length())
   output.write_bytes(kind[:])
   output.write_bytes(payload[:])
-  let crc = @checksum.Crc32::new()
+  let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
   crc.update(payload[:])
   test_write_u32_be(output, crc.finish().reinterpret_as_int())
@@ -48,29 +45,31 @@ fn png_with_trns(
 ///|
 test "PNG roundtrip preserves RGBA8" {
   let image = sample_image()
-  let decoded = try! decode_png(try! encode_png(image, compression_level=6))
+  let decoded = try! @image.decode_png(
+    try! @image.encode_png(image, compression_level=6),
+  )
   inspect(decoded == image, content="true")
 }
 
 ///|
 test "PNG encoding is deterministic for a fixed level" {
   let image = sample_image()
-  let first = try! encode_png(image, compression_level=6)
-  let second = try! encode_png(image, compression_level=6)
+  let first = try! @image.encode_png(image, compression_level=6)
+  let second = try! @image.encode_png(image, compression_level=6)
   inspect(first == second, content="true")
 }
 
 ///|
 test "PNG grayscale tRNS color key becomes transparent alpha" {
   let png = png_with_trns(0, b"\x00\x80", b"\x00\x80")
-  let image = try! decode_png(png)
+  let image = try! @image.decode_png(png)
   inspect(image.pixels, content="b\"\\x80\\x80\\x80\\x00\"")
 }
 
 ///|
 test "PNG RGB tRNS color key becomes transparent alpha" {
   let png = png_with_trns(2, b"\x00\x11\x00\x22\x00\x33", b"\x00\x11\x22\x33")
-  let image = try! decode_png(png)
+  let image = try! @image.decode_png(png)
   inspect(image.pixels[0], content="b'\\x11'")
   inspect(image.pixels[1], content="b'\\x22'")
   inspect(image.pixels[2], content="b'\\x33'")
@@ -80,7 +79,7 @@ test "PNG RGB tRNS color key becomes transparent alpha" {
 ///|
 test "PNG rejects invalid tRNS length" {
   let png = png_with_trns(2, b"\x00", b"\x00\x11\x22\x33")
-  let rejected = try decode_png(png) catch {
+  let rejected = try @image.decode_png(png) catch {
     ImageError(InvalidInput, _) => true
     _ => false
   } noraise {
@@ -91,8 +90,8 @@ test "PNG rejects invalid tRNS length" {
 
 ///|
 test "Lanczos resize avoids transparent color fringes" {
-  let image = try! Image::new(2, 1, b"\xff\xff\xff\xff\xff\x00\x00\x00")
-  let resized = try! resize_lanczos3(image, 1, 1)
+  let image = try! @image.Image::new(2, 1, b"\xff\xff\xff\xff\xff\x00\x00\x00")
+  let resized = try! @image.resize_lanczos3(image, 1, 1)
   inspect(resized.pixels[0], content="b'\\xFF'")
   inspect(resized.pixels[1], content="b'\\xFF'")
   inspect(resized.pixels[2], content="b'\\xFF'")
@@ -100,8 +99,8 @@ test "Lanczos resize avoids transparent color fringes" {
 
 ///|
 test "strict square policy rejects a rectangle" {
-  let image = try! Image::new(2, 1, b"\x00\x00\x00\xff\x00\x00\x00\xff")
-  let rejected = try square_image(image) catch {
+  let image = try! @image.Image::new(2, 1, b"\x00\x00\x00\xff\x00\x00\x00\xff")
+  let rejected = try @image.square_image(image) catch {
     ImageError(NotSquare, _) => true
     _ => false
   } noraise {
@@ -112,7 +111,7 @@ test "strict square policy rejects a rectangle" {
 
 ///|
 test "ICO uses PNG image entries" {
-  let ico = try! encode_ico(sample_image(), sizes=[16, 32])
+  let ico = try! @image.encode_ico(sample_image(), sizes=[16, 32])
   inspect(ico[0:4] == b"\x00\x00\x01\x00"[:], content="true")
   inspect(ico[4:6] == b"\x02\x00"[:], content="true")
   inspect(ico[6], content="b'\\x10'")
@@ -120,7 +119,7 @@ test "ICO uses PNG image entries" {
 
 ///|
 test "ICNS contains standard and retina PNG chunks" {
-  let icns = try! encode_icns(sample_image(), sizes=[16, 32])
+  let icns = try! @image.encode_icns(sample_image(), sizes=[16, 32])
   inspect(icns[:4] == b"icns"[:], content="true")
   let has_icp5 = icns[8:12] == b"icp4"[:] || icns[8:12] == b"icp5"[:]
   inspect(has_icp5, content="true")

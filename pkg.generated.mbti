@@ -45,8 +45,10 @@ pub(all) struct Image {
   height : Int
   pixels : Bytes
 } derive(Eq)
+pub fn Image::equal(Self, Self) -> Bool
 pub fn Image::is_square(Self) -> Bool
 pub fn Image::new(Int, Int, Bytes) -> Self raise ImageError
+pub fn Image::not_equal(Self, Self) -> Bool
 
 pub(all) enum ImageErrorKind {
   InvalidInput
@@ -55,6 +57,9 @@ pub(all) enum ImageErrorKind {
   InvalidDimensions
   NotSquare
 } derive(Eq, @debug.Debug)
+pub fn ImageErrorKind::equal(Self, Self) -> Bool
+pub fn ImageErrorKind::not_equal(Self, Self) -> Bool
+pub fn ImageErrorKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PngVariant {
   size : Int
@@ -65,8 +70,10 @@ pub(all) enum SquarePolicy {
   Strict
   CenterCrop
 } derive(Eq, @debug.Debug)
+pub fn SquarePolicy::equal(Self, Self) -> Bool
+pub fn SquarePolicy::not_equal(Self, Self) -> Bool
+pub fn SquarePolicy::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

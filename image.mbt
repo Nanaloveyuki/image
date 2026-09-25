@@ -7,6 +7,9 @@ pub(all) struct Image {
 } derive(Eq)
 
 ///|
+pub extend Image with Eq::{not_equal, equal}
+
+///|
 /// Limits applied before allocating decoded image buffers.
 pub(all) struct DecodeLimits {
   max_input_bytes : Int
@@ -34,6 +37,12 @@ pub(all) enum ImageErrorKind {
 } derive(Eq, Debug)
 
 ///|
+pub extend ImageErrorKind with Eq::{not_equal, equal}
+
+///|
+pub extend ImageErrorKind with Debug::{to_repr}
+
+///|
 pub suberror ImageError {
   ImageError(ImageErrorKind, String)
 }
@@ -55,7 +64,7 @@ pub fn Image::new(
       "RGBA8 buffer length does not match dimensions",
     )
   }
-  { width, height, pixels }
+  { width, height, pixels, }
 }
 
 ///|
@@ -80,23 +89,17 @@ fn u32_be(data : BytesView, offset : Int) -> Int {
 
 ///|
 fn write_u16_le(out : Buffer, value : Int) -> Unit {
-  out.write_byte((value & 0xff).to_byte())
-  out.write_byte(((value >> 8) & 0xff).to_byte())
+  out.write_uint16_le(value.reinterpret_as_uint().to_uint16())
 }
 
 ///|
 fn write_u32_le(out : Buffer, value : Int) -> Unit {
-  for shift = 0; shift < 32; shift = shift + 8 {
-    out.write_byte(((value >> shift) & 0xff).to_byte())
-  }
+  out.write_uint_le(value.reinterpret_as_uint())
 }
 
 ///|
 fn write_u32_be(out : Buffer, value : Int) -> Unit {
-  out.write_byte(((value >> 24) & 0xff).to_byte())
-  out.write_byte(((value >> 16) & 0xff).to_byte())
-  out.write_byte(((value >> 8) & 0xff).to_byte())
-  out.write_byte((value & 0xff).to_byte())
+  out.write_uint_be(value.reinterpret_as_uint())
 }
 
 ///|

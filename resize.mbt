@@ -5,6 +5,12 @@ pub(all) enum SquarePolicy {
 } derive(Eq, Debug)
 
 ///|
+pub extend SquarePolicy with Eq::{not_equal, equal}
+
+///|
+pub extend SquarePolicy with Debug::{to_repr}
+
+///|
 /// Return a square source image. `Strict` rejects a non-square input; the
 /// opt-in crop policy retains the centered square region.
 pub fn square_image(
@@ -147,7 +153,7 @@ pub fn encode_png_sizes(
       raise ImageError(InvalidDimensions, "PNG output size must be positive")
     }
     let resized = resize_lanczos3(image, size, size)
-    output.push({ size, png: encode_png(resized, compression_level~) })
+    output.push({ size, png: encode_png(resized, compression_level~), })
   }
   output
 }
