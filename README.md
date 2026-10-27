@@ -8,10 +8,10 @@ library. New capabilities are added only for a concrete Orbit requirement.
 
 ## Install
 
-After the package is published to MoonCake, add it to a MoonBit module:
+Add the package to a MoonBit module:
 
 ```powershell
-moon add Nanaloveyuki/image
+moon add Nanaloveyuki/image@0.1.3
 ```
 
 Import the root package from the consuming package's `moon.pkg`:

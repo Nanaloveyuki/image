@@ -10,7 +10,7 @@ The library is intentionally a single pure MoonBit package. Do not add a CLI,
 filesystem operations, or native image library bindings. Callers own path layout
 and file I/O.
 
-### Unreleased toolchain update
+### 0.1.3 - 2026-10-27
 
 `.moonbit-toolchain` records the exact compiler release used for development
 and every Unix/Windows CI installer. The toolchain update leaves library APIs
