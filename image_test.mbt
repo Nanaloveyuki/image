@@ -6,7 +6,7 @@ fn sample_image() -> @image.Image {
 }
 
 ///|
-fn test_write_u32_be(output : Buffer, value : Int) -> Unit {
+fn test_write_u32_be(output : Buffer, value : Int32) -> Unit {
   output.write_uint_be(value.reinterpret_as_uint())
 }
 
@@ -23,7 +23,7 @@ fn test_write_png_chunk(output : Buffer, kind : Bytes, payload : Bytes) -> Unit 
 
 ///|
 fn png_with_trns(
-  color_type : Int,
+  color_type : Int32,
   transparency : Bytes,
   scanline : Bytes,
 ) -> Bytes {

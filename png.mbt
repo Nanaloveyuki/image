@@ -5,7 +5,7 @@ let png_signature = b"\x89PNG\r\n\x1a\n"
 fn validate_chunk_crc(
   kind : BytesView,
   payload : BytesView,
-  expected : Int,
+  expected : Int32,
 ) -> Bool {
   let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
@@ -14,7 +14,7 @@ fn validate_chunk_crc(
 }
 
 ///|
-fn inflate_png_idat(input : Bytes, limit : Int) -> Bytes raise ImageError {
+fn inflate_png_idat(input : Bytes, limit : Int32) -> Bytes raise ImageError {
   let decoder = @zlib.Decoder::Decoder()
   let output = Buffer()
   let scratch = FixedArray::make(32768, b'\x00')
@@ -81,7 +81,7 @@ fn transparent_rgb(
 /// zlib Adler-32 checksum are verified before returning pixels.
 pub fn decode_png(
   input : Bytes,
-  limits? : DecodeLimits = default_decode_limits(),
+  limits~ : DecodeLimits = default_decode_limits(),
 ) -> Image raise ImageError {
   if input.length() > limits.max_input_bytes {
     raise ImageError(ResourceLimit, "PNG input exceeds max_input_bytes")
@@ -332,7 +332,7 @@ fn write_png_chunk(out : Buffer, kind : Bytes, payload : Bytes) -> Unit {
 /// Encode image pixels as a deterministic RGBA PNG with no metadata chunks.
 pub fn encode_png(
   image : Image,
-  compression_level? : Int = 6,
+  compression_level~ : Int32 = 6,
 ) -> Bytes raise ImageError {
   let expected = image.width * image.height
   if image.width <= 0 ||

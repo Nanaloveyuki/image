@@ -10,21 +10,21 @@ pub fn decode_png(Bytes, limits? : DecodeLimits) -> Image raise ImageError
 
 pub fn default_decode_limits() -> DecodeLimits
 
-pub fn default_icns_sizes() -> Array[Int]
+pub fn default_icns_sizes() -> Array[Int32]
 
-pub fn default_ico_sizes() -> Array[Int]
+pub fn default_ico_sizes() -> Array[Int32]
 
-pub fn encode_icns(Image, sizes? : Array[Int], compression_level? : Int) -> Bytes raise ImageError
+pub fn encode_icns(Image, sizes? : Array[Int32], compression_level? : Int32) -> Bytes raise ImageError
 
-pub fn encode_ico(Image, sizes? : Array[Int], compression_level? : Int) -> Bytes raise ImageError
+pub fn encode_ico(Image, sizes? : Array[Int32], compression_level? : Int32) -> Bytes raise ImageError
 
-pub fn encode_png(Image, compression_level? : Int) -> Bytes raise ImageError
+pub fn encode_png(Image, compression_level? : Int32) -> Bytes raise ImageError
 
-pub fn encode_png_sizes(Image, Array[Int], compression_level? : Int) -> Array[PngVariant] raise ImageError
+pub fn encode_png_sizes(Image, Array[Int32], compression_level? : Int32) -> Array[PngVariant] raise ImageError
 
-pub fn png_data_uri_svg(Bytes, Int, Int) -> String raise ImageError
+pub fn png_data_uri_svg(Bytes, Int32, Int32) -> String raise ImageError
 
-pub fn resize_lanczos3(Image, Int, Int) -> Image raise ImageError
+pub fn resize_lanczos3(Image, Int32, Int32) -> Image raise ImageError
 
 pub fn square_image(Image, policy? : SquarePolicy) -> Image raise ImageError
 
@@ -35,19 +35,19 @@ pub suberror ImageError {
 
 // Types and methods
 pub(all) struct DecodeLimits {
-  max_input_bytes : Int
-  max_dimension : Int
-  max_pixels : Int
+  max_input_bytes : Int32
+  max_dimension : Int32
+  max_pixels : Int32
 }
 
 pub(all) struct Image {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   pixels : Bytes
 } derive(Eq)
 pub fn Image::equal(Self, Self) -> Bool
 pub fn Image::is_square(Self) -> Bool
-pub fn Image::new(Int, Int, Bytes) -> Self raise ImageError
+pub fn Image::new(Int32, Int32, Bytes) -> Self raise ImageError
 pub fn Image::not_equal(Self, Self) -> Bool
 
 pub(all) enum ImageErrorKind {
@@ -62,7 +62,7 @@ pub fn ImageErrorKind::not_equal(Self, Self) -> Bool
 pub fn ImageErrorKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PngVariant {
-  size : Int
+  size : Int32
   png : Bytes
 }
 

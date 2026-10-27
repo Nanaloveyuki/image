@@ -1,10 +1,10 @@
 ///|
-pub fn default_ico_sizes() -> Array[Int] {
+pub fn default_ico_sizes() -> Array[Int32] {
   [16, 24, 32, 48, 64, 128, 256]
 }
 
 ///|
-pub fn default_icns_sizes() -> Array[Int] {
+pub fn default_icns_sizes() -> Array[Int32] {
   [16, 32, 64, 128, 256, 512, 1024]
 }
 
@@ -12,8 +12,8 @@ pub fn default_icns_sizes() -> Array[Int] {
 /// Encode an ICO whose directory entries point to PNG payloads.
 pub fn encode_ico(
   image : Image,
-  sizes? : Array[Int] = default_ico_sizes(),
-  compression_level? : Int = 6,
+  sizes~ : Array[Int32] = default_ico_sizes(),
+  compression_level~ : Int32 = 6,
 ) -> Bytes raise ImageError {
   let variants = encode_png_sizes(image, sizes, compression_level~)
   if variants.length() == 0 || variants.length() > 65535 {
@@ -49,7 +49,7 @@ pub fn encode_ico(
 }
 
 ///|
-fn icns_types(size : Int) -> Array[Bytes] raise ImageError {
+fn icns_types(size : Int32) -> Array[Bytes] raise ImageError {
   match size {
     16 => [b"icp4"]
     32 => [b"icp5", b"ic11"]
@@ -67,8 +67,8 @@ fn icns_types(size : Int) -> Array[Bytes] raise ImageError {
 /// sizes and their Retina chunk counterparts.
 pub fn encode_icns(
   image : Image,
-  sizes? : Array[Int] = default_icns_sizes(),
-  compression_level? : Int = 6,
+  sizes~ : Array[Int32] = default_icns_sizes(),
+  compression_level~ : Int32 = 6,
 ) -> Bytes raise ImageError {
   let variants = encode_png_sizes(image, sizes, compression_level~)
   if variants.length() == 0 {
@@ -90,7 +90,7 @@ pub fn encode_icns(
 }
 
 ///|
-fn base64_digit(index : Int) -> Byte {
+fn base64_digit(index : Int32) -> Byte {
   b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[index]
 }
 
@@ -98,8 +98,8 @@ fn base64_digit(index : Int) -> Byte {
 /// Wrap a PNG byte sequence in a portable data-URI SVG image element.
 pub fn png_data_uri_svg(
   png : Bytes,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> String raise ImageError {
   if width <= 0 || height <= 0 {
     raise ImageError(InvalidDimensions, "SVG dimensions must be positive")

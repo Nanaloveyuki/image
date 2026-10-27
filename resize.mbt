@@ -15,7 +15,7 @@ pub extend SquarePolicy with Debug::{to_repr}
 /// opt-in crop policy retains the centered square region.
 pub fn square_image(
   image : Image,
-  policy? : SquarePolicy = Strict,
+  policy~ : SquarePolicy = Strict,
 ) -> Image raise ImageError {
   if image.is_square() {
     return image
@@ -62,8 +62,8 @@ fn clamp_byte(value : Double) -> Byte {
 /// dark fringes after resampling.
 pub fn resize_lanczos3(
   image : Image,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Image raise ImageError {
   if width <= 0 ||
     height <= 0 ||
@@ -135,7 +135,7 @@ pub fn resize_lanczos3(
 
 ///|
 pub(all) struct PngVariant {
-  size : Int
+  size : Int32
   png : Bytes
 }
 
@@ -143,8 +143,8 @@ pub(all) struct PngVariant {
 /// Encode caller-selected square PNG icon sizes in the requested order.
 pub fn encode_png_sizes(
   image : Image,
-  sizes : Array[Int],
-  compression_level? : Int = 6,
+  sizes : Array[Int32],
+  compression_level~ : Int32 = 6,
 ) -> Array[PngVariant] raise ImageError {
   checked_square(image)
   let output = []

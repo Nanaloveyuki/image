@@ -1,8 +1,8 @@
 ///|
 /// RGBA8 image data in row-major order.
 pub(all) struct Image {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   pixels : Bytes
 } derive(Eq)
 
@@ -12,9 +12,9 @@ pub extend Image with Eq::{not_equal, equal}
 ///|
 /// Limits applied before allocating decoded image buffers.
 pub(all) struct DecodeLimits {
-  max_input_bytes : Int
-  max_dimension : Int
-  max_pixels : Int
+  max_input_bytes : Int32
+  max_dimension : Int32
+  max_pixels : Int32
 }
 
 ///|
@@ -50,8 +50,8 @@ pub suberror ImageError {
 ///|
 /// Construct a checked RGBA8 image.
 pub fn Image::new(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   pixels : Bytes,
 ) -> Image raise ImageError {
   if width <= 0 || height <= 0 || width > 0x3fffffff / height {
@@ -80,7 +80,7 @@ fn checked_square(image : Image) -> Unit raise ImageError {
 }
 
 ///|
-fn u32_be(data : BytesView, offset : Int) -> Int {
+fn u32_be(data : BytesView, offset : Int32) -> Int32 {
   (data[offset].to_int() << 24) |
   (data[offset + 1].to_int() << 16) |
   (data[offset + 2].to_int() << 8) |
@@ -88,22 +88,22 @@ fn u32_be(data : BytesView, offset : Int) -> Int {
 }
 
 ///|
-fn write_u16_le(out : Buffer, value : Int) -> Unit {
+fn write_u16_le(out : Buffer, value : Int32) -> Unit {
   out.write_uint16_le(value.reinterpret_as_uint().to_uint16())
 }
 
 ///|
-fn write_u32_le(out : Buffer, value : Int) -> Unit {
+fn write_u32_le(out : Buffer, value : Int32) -> Unit {
   out.write_uint_le(value.reinterpret_as_uint())
 }
 
 ///|
-fn write_u32_be(out : Buffer, value : Int) -> Unit {
+fn write_u32_be(out : Buffer, value : Int32) -> Unit {
   out.write_uint_be(value.reinterpret_as_uint())
 }
 
 ///|
-fn paeth(a : Int, b : Int, c : Int) -> Int {
+fn paeth(a : Int32, b : Int32, c : Int32) -> Int32 {
   let p = a + b - c
   let pa = (p - a).abs()
   let pb = (p - b).abs()
