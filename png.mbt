@@ -357,7 +357,7 @@ pub fn encode_png(
   write_png_chunk(
     output,
     b"IDAT",
-    @zlib.zlib_compress(raw.to_bytes(), level=compression_level),
+    @zlib.compress(raw.to_bytes(), level=compression_level),
   )
   write_png_chunk(output, b"IEND", b"")
   output.to_bytes()

@@ -11,7 +11,7 @@ library. New capabilities are added only for a concrete Orbit requirement.
 Add the package to a MoonBit module:
 
 ```powershell
-moon add Nanaloveyuki/image@0.1.4
+moon add Nanaloveyuki/image@0.1.5
 ```
 
 Import the root package from the consuming package's `moon.pkg`:
@@ -72,8 +72,8 @@ inside SVG. It does not vectorize pixels and is not used by the icon encoders.
 
 ## Development
 
-Release `0.1.4` uses compiler `0.10.19+97801ee1b` (2026-10-30) and
-CLI `moon 0.1.20261029`.
+Release `0.1.5` uses compiler `0.10.20+65efd5b93` (2026-11-05) and
+CLI `moon 0.1.20261104`.
 
 See [docs/development.md](docs/development.md) for local validation, API-change
 requirements, and contribution review rules.

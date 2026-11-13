@@ -40,23 +40,25 @@ pub(all) struct DecodeLimits {
   max_pixels : Int32
 }
 
+#derive(Eq)
 pub(all) struct Image {
   width : Int32
   height : Int32
   pixels : Bytes
-} derive(Eq)
+}
 pub fn Image::equal(Self, Self) -> Bool
 pub fn Image::is_square(Self) -> Bool
 pub fn Image::new(Int32, Int32, Bytes) -> Self raise ImageError
 pub fn Image::not_equal(Self, Self) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ImageErrorKind {
   InvalidInput
   ResourceLimit
   UnsupportedFormat
   InvalidDimensions
   NotSquare
-} derive(Eq, @debug.Debug)
+}
 pub fn ImageErrorKind::equal(Self, Self) -> Bool
 pub fn ImageErrorKind::not_equal(Self, Self) -> Bool
 pub fn ImageErrorKind::to_repr(Self) -> @debug.Repr
@@ -66,10 +68,11 @@ pub(all) struct PngVariant {
   png : Bytes
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SquarePolicy {
   Strict
   CenterCrop
-} derive(Eq, @debug.Debug)
+}
 pub fn SquarePolicy::equal(Self, Self) -> Bool
 pub fn SquarePolicy::not_equal(Self, Self) -> Bool
 pub fn SquarePolicy::to_repr(Self) -> @debug.Repr

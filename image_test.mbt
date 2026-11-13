@@ -37,7 +37,7 @@ fn png_with_trns(
   output.write_bytes(b"\x89PNG\r\n\x1a\n")
   test_write_png_chunk(output, b"IHDR", header.to_bytes())
   test_write_png_chunk(output, b"tRNS", transparency)
-  test_write_png_chunk(output, b"IDAT", @zlib.zlib_compress(scanline))
+  test_write_png_chunk(output, b"IDAT", @zlib.compress(scanline))
   test_write_png_chunk(output, b"IEND", b"")
   output.to_bytes()
 }

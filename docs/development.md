@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- MoonBit compiler `0.10.19+97801ee1b` (2026-10-30), with CLI
-  `moon 0.1.20261029`, including native-target support.
+- MoonBit compiler `0.10.20+65efd5b93` (2026-11-05), with CLI
+  `moon 0.1.20261104`, including native-target support.
 - Network access only when MoonCake dependencies need to be resolved or updated.
 
 The library is intentionally a single pure MoonBit package. Do not add a CLI,

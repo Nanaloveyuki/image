@@ -1,10 +1,11 @@
 ///|
 /// RGBA8 image data in row-major order.
+#derive(Eq)
 pub(all) struct Image {
   width : Int32
   height : Int32
   pixels : Bytes
-} derive(Eq)
+}
 
 ///|
 pub extend Image with Eq::{not_equal, equal}
@@ -28,13 +29,14 @@ pub fn default_decode_limits() -> DecodeLimits {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum ImageErrorKind {
   InvalidInput
   ResourceLimit
   UnsupportedFormat
   InvalidDimensions
   NotSquare
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ImageErrorKind with Eq::{not_equal, equal}

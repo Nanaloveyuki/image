@@ -1,8 +1,9 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum SquarePolicy {
   Strict
   CenterCrop
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SquarePolicy with Eq::{not_equal, equal}
