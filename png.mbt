@@ -183,7 +183,7 @@ pub fn decode_png(
         raise ImageError(InvalidInput, "PNG IDAT is out of order")
       }
       got_idat = true
-      idat.write_bytes(payload)
+      idat.write_bytesview(payload)
     } else if kind == b"IEND"[:] {
       if length != 0 || !got_ihdr {
         raise ImageError(InvalidInput, "invalid PNG IEND")
@@ -320,8 +320,8 @@ pub fn decode_png(
 ///|
 fn write_png_chunk(out : Buffer, kind : Bytes, payload : Bytes) -> Unit {
   write_u32_be(out, payload.length())
-  out.write_bytes(kind[:])
-  out.write_bytes(payload[:])
+  out.write_bytesview(kind[:])
+  out.write_bytesview(payload[:])
   let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
   crc.update(payload[:])
@@ -345,14 +345,14 @@ pub fn encode_png(
   for y in 0..<image.height {
     raw.write_byte(b'\x00')
     let start = y * image.width * 4
-    raw.write_bytes(image.pixels[start:start + image.width * 4])
+    raw.write_bytesview(image.pixels[start:start + image.width * 4])
   }
   let header = Buffer()
   write_u32_be(header, image.width)
   write_u32_be(header, image.height)
-  header.write_bytes(b"\x08\x06\x00\x00\x00")
+  header.write_bytesview(b"\x08\x06\x00\x00\x00")
   let output = Buffer()
-  output.write_bytes(png_signature[:])
+  output.write_bytesview(png_signature[:])
   write_png_chunk(output, b"IHDR", header.to_bytes())
   write_png_chunk(
     output,

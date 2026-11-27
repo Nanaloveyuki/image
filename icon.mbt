@@ -43,7 +43,7 @@ pub fn encode_ico(
     offset = offset + variant.png.length()
   }
   for variant in variants {
-    out.write_bytes(variant.png[:])
+    out.write_bytesview(variant.png[:])
   }
   out.to_bytes()
 }
@@ -77,15 +77,15 @@ pub fn encode_icns(
   let chunks = Buffer()
   for variant in variants {
     for kind in icns_types(variant.size) {
-      chunks.write_bytes(kind[:])
+      chunks.write_bytesview(kind[:])
       write_u32_be(chunks, variant.png.length() + 8)
-      chunks.write_bytes(variant.png[:])
+      chunks.write_bytesview(variant.png[:])
     }
   }
   let out = Buffer()
-  out.write_bytes(b"icns")
+  out.write_bytesview(b"icns")
   write_u32_be(out, chunks.length() + 8)
-  out.write_bytes(chunks.to_bytes()[:])
+  out.write_bytesview(chunks.to_bytes()[:])
   out.to_bytes()
 }
 

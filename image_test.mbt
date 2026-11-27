@@ -13,8 +13,8 @@ fn test_write_u32_be(output : Buffer, value : Int32) -> Unit {
 ///|
 fn test_write_png_chunk(output : Buffer, kind : Bytes, payload : Bytes) -> Unit {
   test_write_u32_be(output, payload.length())
-  output.write_bytes(kind[:])
-  output.write_bytes(payload[:])
+  output.write_bytesview(kind[:])
+  output.write_bytesview(payload[:])
   let crc = @checksum.Crc32::Crc32()
   crc.update(kind[:])
   crc.update(payload[:])
@@ -32,9 +32,9 @@ fn png_with_trns(
   test_write_u32_be(header, 1)
   header.write_byte(b'\x08')
   header.write_byte(color_type.to_byte())
-  header.write_bytes(b"\x00\x00\x00")
+  header.write_bytesview(b"\x00\x00\x00")
   let output = Buffer()
-  output.write_bytes(b"\x89PNG\r\n\x1a\n")
+  output.write_bytesview(b"\x89PNG\r\n\x1a\n")
   test_write_png_chunk(output, b"IHDR", header.to_bytes())
   test_write_png_chunk(output, b"tRNS", transparency)
   test_write_png_chunk(output, b"IDAT", @zlib.compress(scanline))
@@ -70,10 +70,7 @@ test "PNG grayscale tRNS color key becomes transparent alpha" {
 test "PNG RGB tRNS color key becomes transparent alpha" {
   let png = png_with_trns(2, b"\x00\x11\x00\x22\x00\x33", b"\x00\x11\x22\x33")
   let image = try! @image.decode_png(png)
-  inspect(image.pixels[0], content="b'\\x11'")
-  inspect(image.pixels[1], content="b'\\x22'")
-  inspect(image.pixels[2], content="b'\\x33'")
-  inspect(image.pixels[3], content="b'\\x00'")
+  assert_eq(image.pixels, b"\x11\x22\x33\x00")
 }
 
 ///|
@@ -92,9 +89,7 @@ test "PNG rejects invalid tRNS length" {
 test "Lanczos resize avoids transparent color fringes" {
   let image = try! @image.Image::new(2, 1, b"\xff\xff\xff\xff\xff\x00\x00\x00")
   let resized = try! @image.resize_lanczos3(image, 1, 1)
-  inspect(resized.pixels[0], content="b'\\xFF'")
-  inspect(resized.pixels[1], content="b'\\xFF'")
-  inspect(resized.pixels[2], content="b'\\xFF'")
+  assert_eq(resized.pixels[:3], b"\xff\xff\xff"[:])
 }
 
 ///|
@@ -114,7 +109,7 @@ test "ICO uses PNG image entries" {
   let ico = try! @image.encode_ico(sample_image(), sizes=[16, 32])
   inspect(ico[0:4] == b"\x00\x00\x01\x00"[:], content="true")
   inspect(ico[4:6] == b"\x02\x00"[:], content="true")
-  inspect(ico[6], content="b'\\x10'")
+  assert_eq(ico[6], 0x10)
 }
 
 ///|
